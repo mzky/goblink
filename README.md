@@ -1,2 +1,1 @@
-# goblink
-https://github.com/Mengdch/browser 的分支 修复编译问题
+1. 这是miniblink的go封装，没用cgo，直接调用win32API，demo文件夹是测试启动程序

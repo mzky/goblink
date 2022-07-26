@@ -1,0 +1,5 @@
+github.com/mzky/win v0.0.0-20220726083956-8b8ae43846ae h1:RRXoSVyhNGFa78IWG/OshEvuvFJCjjTDkHo/6xbEOWw=
+github.com/mzky/win v0.0.0-20220726083956-8b8ae43846ae/go.mod h1:SqbSazLFBmohSY40daaJQnWs8nq99JU70a6FI3Yt0vc=
+golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f h1:v4INt8xihDGvnrfjMDVXGxw9wrfxYyCjk0KbXjhR55s=
+golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
