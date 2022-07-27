@@ -1,8 +1,14 @@
 package win32
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"github.com/mzky/win"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
 	"runtime"
 	"sync"
 	"syscall"
@@ -23,7 +29,7 @@ var (
 	windowViewNamePtr *uint16
 	hInst             win.HINSTANCE
 	procMap           map[win.HWND]uintptr
-	MbHandle          *Blink
+	WebView           *Blink
 	iconHandle        win.HANDLE
 	urls              []string
 )
@@ -32,7 +38,7 @@ type SaveCallback func(url, path string)
 type FinishCallback func(url string, success bool)
 
 func init() {
-	MbHandle = new(Blink).Init()
+	WebView = new(Blink).Init()
 	var err error
 	classNamePtr, err = syscall.UTF16PtrFromString(className)
 	if err != nil {
@@ -104,32 +110,31 @@ func newClassWindow(exStyle, style uint32, parent win.HWND, width, height int32,
 }
 
 type FormProfile struct {
-	Title     string
-	UserAgent string
-	Width     int
-	Height    int
-	Max       bool
-	Mb        bool
-	Ib        bool
-	Index     string
-	DevPath   string
-	Subs      map[string]FormProfile
-	Main      bool
+	Title        string
+	UserAgent    string
+	Width        int
+	Height       int
+	Max          bool
+	Mb           bool
+	Ib           bool
+	Index        string
+	DevtoolsPath string
+	Subs         map[string]FormProfile
+	Main         bool
 }
 
-func StartBlinkMain(url, title, ico, userAgent, devPath string, max, mb, ib bool, width, height int) error {
+func StartBlinkMain(url, title, devtoolsPath string, max, mb, ib bool, width, height int) error {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
-	main := FormProfile{Title: title, UserAgent: userAgent, Index: url, DevPath: devPath, Max: max, Mb: mb, Ib: ib, Width: width, Height: height}
-	loadIcon(ico)
-	main.newBlinkWindow()
+	main := FormProfile{Title: title, Index: url, DevtoolsPath: devtoolsPath, Max: max, Mb: mb, Ib: ib, Width: width, Height: height}
+	main.NewBlinkWindow()
 	// 3. 主消息循环
 	msg := (*win.MSG)(unsafe.Pointer(win.GlobalAlloc(0, unsafe.Sizeof(win.MSG{}))))
 	defer win.GlobalFree(win.HGLOBAL(unsafe.Pointer(msg)))
 	for win.GetMessage(msg, 0, 0, 0) > 0 {
 		// fmt.Println(msg.Message, msg.HWnd, msg.LParam, msg.WParam)
 		if msg.Message == win.WM_QUIT {
-			MbHandle.wkeUnInit()
+			WebView.wkeUnInit()
 			break
 		}
 		win.TranslateMessage(msg)
@@ -138,20 +143,20 @@ func StartBlinkMain(url, title, ico, userAgent, devPath string, max, mb, ib bool
 	return nil
 }
 
-func (fp FormProfile) newBlinkWindow() {
+func (fp FormProfile) NewBlinkWindow() {
 	w := window{profile: fp}
 	w.init()
 	v := BlinkView{}
 	var r win.RECT
 	win.GetClientRect(w.hWnd, &r)
-	v.init(fp.UserAgent, fp.DevPath)
-	v.SetOnNewWindow(w.onCreateView)
-	v.setDownloadCallback(w.wkeOnDownloadCallback)
+	v.init(fp.UserAgent, fp.DevtoolsPath)
+	v.SetOnNewWindow(w.OnCreateView)
+	v.setDownloadCallback(w.WkeOnDownloadCallback)
 	w.child = newClassWindow(0, win.WS_CHILD|win.WS_VISIBLE|win.WS_CLIPSIBLINGS|win.WS_CLIPCHILDREN, w.hWnd, r.Width(), r.Height(), classViewNamePtr, windowViewNamePtr, v.OnWndProc)
 	v.setHWnd(w.child)
 	v.resize(r.Width(), r.Height(), true)
 	v.LoadUrl(fp.Index)
-	MbHandle.wkeOnLoadUrlBegin(v.handle, v.wkeLoadUrlBeginCallback, 0)
+	WebView.wkeOnLoadUrlBegin(v.handle, v.WkeLoadUrlBeginCallback, 0)
 	urls = append(urls, fp.Index)
 	w.view = &v
 }
@@ -164,6 +169,23 @@ func loadIcon(ico string) {
 		return
 	}
 	iconHandle = win.LoadImage(hInst, fromString, win.IMAGE_ICON, 0, 0, win.LR_LOADFROMFILE)
+}
+
+// LoadIconFromBytes 先把ico二进制数据存到本地(common.TempPath),再使用winapi的LoadImage加载图标
+func LoadIconFromBytes(iconData []byte) {
+	//计算数据的hash
+	bh := md5.Sum(iconData)
+	dataHash := hex.EncodeToString(bh[:])
+
+	//缓存中没有,则释放到本地目录
+	iconFilePath := filepath.Join(TempPath, "icon_"+dataHash)
+	if _, err := os.Stat(iconFilePath); os.IsNotExist(err) {
+		if err := ioutil.WriteFile(iconFilePath, iconData, 0644); err != nil {
+			log.Println("无法创建临时icon文件: " + err.Error())
+		}
+	}
+
+	loadIcon(iconFilePath)
 }
 
 type window struct {
@@ -203,6 +225,7 @@ func (w *window) style() uint32 {
 	}
 	return style
 }
+
 func (w *window) roundRect() { // 有效果，但是很丑，还有bug
 	/*
 		您可以创建一个没有任何框架的窗口，使用WS_EX_LAYERED获取透明度，然后在WM_PAINT中“正常”绘制包含自定义框架的窗口，或者组成一个离屏位图，并使用
@@ -216,6 +239,7 @@ func (w *window) roundRect() { // 有效果，但是很丑，还有bug
 	rgn := win.CreateRoundRectRgn(r.Left, r.Top, r.Right, r.Bottom, 20, 20)
 	win.SetWindowRgn(w.hWnd, rgn, true)
 }
+
 func (w *window) windowMsgProc(hWnd win.HWND, msg uint32, wParam uintptr, lParam uintptr) uintptr {
 	switch msg {
 	case win.WM_SIZE:
@@ -236,7 +260,8 @@ func (w *window) windowMsgProc(hWnd win.HWND, msg uint32, wParam uintptr, lParam
 	}
 	return win.DefWindowProc(hWnd, msg, wParam, lParam)
 }
-func (w *window) wkeOnDownloadCallback(wke WkeHandle, param uintptr, length uint32, url, mime, disposition uintptr, job WkeNetJob, dataBind uintptr) wkeDownloadOpt {
+
+func (w *window) WkeOnDownloadCallback(wke WkeHandle, param uintptr, length uint32, url, mime, disposition uintptr, job WkeNetJob, dataBind uintptr) wkeDownloadOpt {
 	info := downInfo{}
 	urlStr := PtrToUtf8(url)
 	info.url = StrToCharPtr(urlStr)
@@ -249,14 +274,14 @@ func (w *window) wkeOnDownloadCallback(wke WkeHandle, param uintptr, length uint
 	w.bind[urlStr] = &bind
 	return w.view.wkePopupDialogAndDownload(param, length, url, mime, disposition, job, dataBind, &bind)
 }
-func (w *window) onCreateView(wke WkeHandle, param uintptr, naviType wkeNavigationType, url, feature uintptr) uintptr {
+func (w *window) OnCreateView(wke WkeHandle, param uintptr, naviType wkeNavigationType, url, feature uintptr) uintptr {
 	a := PtrToUtf8(url)
 	if Debug() {
-		fmt.Println("onCreateView", a)
+		fmt.Println("OnCreateView", a)
 	}
 	urls = append(urls, a)
 	if v, e := w.profile.Subs[a]; e {
-		v.newBlinkWindow()
+		v.NewBlinkWindow()
 	} else {
 		o := operateUri(a)
 		if o == 1 {
@@ -265,10 +290,11 @@ func (w *window) onCreateView(wke WkeHandle, param uintptr, naviType wkeNavigati
 		n := w.profile
 		n.Index = a
 		n.Main = false
-		n.newBlinkWindow()
+		n.NewBlinkWindow()
 	}
 	return 0
 }
+
 func Debug() bool {
 	return true
 }

@@ -90,9 +90,9 @@ func (t *Blink) Init() *Blink {
 		log.Fatal("Cannot create temporary file", err)
 	}
 	ioutil.WriteFile(tmpFile.Name(), blink.Node, 755)
-	fp := tmpFile.Name()
-	tmpFile.Close()
-	lib := windows.NewLazyDLL(fp)
+	dllPath := tmpFile.Name()
+	tmpFile.Close() // 必须放前面
+	lib := windows.NewLazyDLL(dllPath)
 
 	t._wkeSetViewProxy = lib.NewProc("mbSetViewProxy")
 	t._wkeSetTransparent = lib.NewProc("mbSetTransparent")
@@ -486,10 +486,12 @@ func (t *Blink) wkeGetLockedViewDC(handle WkeHandle) win.HDC {
 func (t *Blink) wkeRunMessageLoop() {
 	t._wkeRunMessageLoop.Call()
 }
+
 func (t *Blink) wkeWebFrameGetMainFrame(handle WkeHandle) WkeFrame {
 	r, _, _ := t._wkeWebFrameGetMainFrame.Call(uintptr(handle))
 	return WkeFrame(r)
 }
+
 func StrToCharPtr(str string) uintptr {
 	buf := []byte(str)
 	rs := make([]byte, len(str)+1)
@@ -498,6 +500,7 @@ func StrToCharPtr(str string) uintptr {
 	}
 	return uintptr(unsafe.Pointer(&rs[0]))
 }
+
 func StrPtr(s string) (uintptr, error) {
 	fromString, err := syscall.UTF16PtrFromString(s)
 	if err != nil {

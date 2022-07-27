@@ -1,5 +1,6 @@
 package win32
 
+import "C"
 import (
 	"github.com/mzky/win"
 	"golang.org/x/sys/windows"
@@ -62,11 +63,12 @@ const (
 var pid uint32
 var miniDumpWriteDump *windows.LazyProc
 
+//debug
 func init() {
 	pid = windows.GetCurrentProcessId()
 	dbghelp := windows.NewLazySystemDLL("Dbghelp.dll")
 	miniDumpWriteDump = dbghelp.NewProc("MiniDumpWriteDump")
-	win.SetUnhandledExceptionFilter(onException)
+	win.SetUnhandledExceptionFilter(onException) // debug
 }
 
 type exceptionInfo struct {

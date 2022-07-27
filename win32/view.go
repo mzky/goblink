@@ -41,20 +41,20 @@ func (v *BlinkView) createBitmap() {
 	v.mBitmap = hBmp
 }
 
-func (v *BlinkView) init(ua, dev string) {
-	if MbHandle != nil {
-		v.handle = MbHandle.WkeCreateWebView()
-		MbHandle.WkeSetTransparent(v.handle, false)
-		MbHandle.WkeSetNavigationToNewWindowEnable(v.handle, true)
-		MbHandle.WkeOnAlertBox(v.handle, v.onAlert, 0)
-		MbHandle.WkeOnPaintUpdated(v.handle, v.paintUpdatedCallback, 0)
+func (v *BlinkView) init(userAgent, devtoolsPath string) {
+	if WebView != nil {
+		v.handle = WebView.WkeCreateWebView()
+		WebView.WkeSetTransparent(v.handle, false)
+		WebView.WkeSetNavigationToNewWindowEnable(v.handle, true)
+		WebView.WkeOnAlertBox(v.handle, v.onAlert, 0)
+		WebView.WkeOnPaintUpdated(v.handle, v.paintUpdatedCallback, 0)
 		// mbHandle.wkeOnLoadUrlEnd(v.handle, v.wkeLoadUrlEndCallback, 0)
-		MbHandle.WkeOnDocumentReady(v.handle, v.wkeOnDocumentReady, 0)
-		if len(ua) > 0 {
-			MbHandle.WkeSetUserAgent(v.handle, ua)
+		WebView.WkeOnDocumentReady(v.handle, v.wkeOnDocumentReady, 0)
+		if len(userAgent) > 0 {
+			WebView.WkeSetUserAgent(v.handle, userAgent)
 		}
-		if len(dev) > 0 {
-			MbHandle.WkeSetDebugConfig(v.handle, showDevTools, dev)
+		if len(devtoolsPath) > 0 {
+			WebView.WkeSetDebugConfig(v.handle, showDevTools, devtoolsPath)
 		}
 	}
 	return
@@ -63,7 +63,7 @@ func (v *BlinkView) init(ua, dev string) {
 func (v *BlinkView) setHWnd(parent win.HWND) {
 	v.mWnd = parent
 	v.mDC = win.CreateCompatibleDC(0)
-	MbHandle.WkeSetHandle(v.handle, uintptr(v.mWnd))
+	WebView.WkeSetHandle(v.handle, uintptr(v.mWnd))
 }
 func (v *BlinkView) close() {
 	if v.mDC != 0 {
@@ -72,17 +72,17 @@ func (v *BlinkView) close() {
 	if v.mBitmap != 0 {
 		win.DeleteObject(win.HGDIOBJ(v.mBitmap))
 	}
-	MbHandle.WkeOnPaintUpdated(v.handle, nil, uintptr(v.mWnd))
-	MbHandle.WkeSetHandle(v.handle, 0)
-	MbHandle.WkeDestroyWebView(v.handle)
+	WebView.WkeOnPaintUpdated(v.handle, nil, uintptr(v.mWnd))
+	WebView.WkeSetHandle(v.handle, 0)
+	WebView.WkeDestroyWebView(v.handle)
 }
 func (v *BlinkView) setDownloadCallback(callback func(wke WkeHandle, param uintptr, length uint32, url, mime, disposition uintptr, job WkeNetJob, dataBind uintptr) wkeDownloadOpt) {
-	MbHandle.WkeOnDownload(v.handle, callback, 0)
+	WebView.WkeOnDownload(v.handle, callback, 0)
 	return
 }
 func (v *BlinkView) wkePopupDialogAndDownload(param uintptr, contentLength uint32, url, mime,
 	disposition uintptr, job WkeNetJob, data uintptr, callback *wkeDownloadBind) wkeDownloadOpt {
-	r, _, _ := MbHandle._wkePopupDialogAndDownload.Call(uintptr(v.handle), param, uintptr(contentLength), url, mime,
+	r, _, _ := WebView._wkePopupDialogAndDownload.Call(uintptr(v.handle), param, uintptr(contentLength), url, mime,
 		disposition, uintptr(job), data, uintptr(unsafe.Pointer(callback)))
 	return wkeDownloadOpt(r)
 }
@@ -92,7 +92,7 @@ func (v *BlinkView) wkeOnDocumentReady(wke WkeHandle, param uintptr, frame WkeFr
 }
 
 func (v *BlinkView) runJs(frame WkeFrame) {
-	MbHandle.wkeRunJs(v.handle, frame, StrToCharPtr(""), false, 0, 0)
+	WebView.wkeRunJs(v.handle, frame, StrToCharPtr(""), false, 0, 0)
 	return
 }
 func (v *BlinkView) wkeLoadingFinishCallback(wke WkeHandle, param uintptr, frame WkeFrame, url uintptr, result wkeLoadingResult, reason uintptr) uintptr {
@@ -102,11 +102,11 @@ func (v *BlinkView) wkeLoadingFinishCallback(wke WkeHandle, param uintptr, frame
 	return 0
 }
 func (v *BlinkView) wkeLoadUrlEndCallback(wke WkeHandle, param, url uintptr, job WkeNetJob, buf uintptr, count int32) uintptr {
-	frame := MbHandle.wkeWebFrameGetMainFrame(v.handle)
+	frame := WebView.wkeWebFrameGetMainFrame(v.handle)
 	v.runJs(frame)
 	return 0
 }
-func (v *BlinkView) wkeLoadUrlBeginCallback(wke WkeHandle, param, utf8Url uintptr, job WkeNetJob) uintptr {
+func (v *BlinkView) WkeLoadUrlBeginCallback(wke WkeHandle, param, utf8Url uintptr, job WkeNetJob) uintptr {
 	uri := PtrToUtf8(utf8Url)
 	if len(v.url) > 0 {
 		v.url = ""
@@ -154,10 +154,10 @@ func (v *BlinkView) paintUpdatedCallback(wke WkeHandle, param, hdc uintptr, x, y
 
 func (v *BlinkView) LoadUrl(url string) {
 	v.url = url
-	MbHandle.wkeLoadURL(v.handle, url)
+	WebView.wkeLoadURL(v.handle, url)
 }
 func (v *BlinkView) SetOnNewWindow(callback WkeOnCreateViewCallback) {
-	MbHandle.wkeOnCreateView(v.handle, callback, 0)
+	WebView.wkeOnCreateView(v.handle, callback, 0)
 }
 
 func (v *BlinkView) OnWndProc(hWnd win.HWND, msg uint32, wParam, lParam uintptr) uintptr {
@@ -168,15 +168,15 @@ func (v *BlinkView) OnWndProc(hWnd win.HWND, msg uint32, wParam, lParam uintptr)
 		w, h := int32(win.LOWORD(uint32(lParam))), int32(win.HIWORD(uint32(lParam)))
 		v.resize(w, h, true)
 	case win.WM_KEYDOWN:
-		if v.keyDown(msg, wParam, lParam, MbHandle.wkeFireKeyDownEvent) {
+		if v.keyDown(msg, wParam, lParam, WebView.wkeFireKeyDownEvent) {
 			return 0
 		}
 	case win.WM_KEYUP:
-		if v.keyDown(msg, wParam, lParam, MbHandle.wkeFireKeyUpEvent) {
+		if v.keyDown(msg, wParam, lParam, WebView.wkeFireKeyUpEvent) {
 			return 0
 		}
 	case win.WM_CHAR:
-		if v.keyDown(msg, wParam, lParam, MbHandle.wkeFireKeyPressEvent) {
+		if v.keyDown(msg, wParam, lParam, WebView.wkeFireKeyPressEvent) {
 			return 0
 		}
 	case win.WM_LBUTTONUP, win.WM_LBUTTONDOWN, win.WM_LBUTTONDBLCLK, win.WM_RBUTTONUP, win.WM_RBUTTONDOWN,
@@ -193,10 +193,10 @@ func (v *BlinkView) OnWndProc(hWnd win.HWND, msg uint32, wParam, lParam uintptr)
 			return 0
 		}
 	case win.WM_SETFOCUS:
-		MbHandle.wkeSetFocus(v.handle)
+		WebView.wkeSetFocus(v.handle)
 		return 0
 	case win.WM_KILLFOCUS:
-		MbHandle.wkeKillFocus(v.handle)
+		WebView.wkeKillFocus(v.handle)
 		return 0
 	case win.WM_PAINT:
 		var paintInfo win.PAINTSTRUCT
@@ -205,7 +205,7 @@ func (v *BlinkView) OnWndProc(hWnd win.HWND, msg uint32, wParam, lParam uintptr)
 		win.EndPaint(hWnd, &paintInfo)
 		return 0
 	case win.WM_SETCURSOR, win.WM_IME_STARTCOMPOSITION:
-		if MbHandle.wkeFireWindowsMessage(v.handle, hWnd, int32(msg), int32(0), int32(0)) {
+		if WebView.wkeFireWindowsMessage(v.handle, hWnd, int32(msg), int32(0), int32(0)) {
 			return 0
 		}
 	case win.WM_INPUTLANGCHANGE:
@@ -217,12 +217,12 @@ func (v *BlinkView) menu(hWnd win.HWND, wParam, lParam uintptr) bool {
 	pt := getPoint(hWnd, lParam)
 
 	flags := getFlags(wParam)
-	return MbHandle.wkeFireContextMenuEvent(v.handle, pt.X, pt.Y, flags)
+	return WebView.wkeFireContextMenuEvent(v.handle, pt.X, pt.Y, flags)
 }
 func (v *BlinkView) mouseWheel(hWnd win.HWND, wParam, lParam uintptr) bool {
 	pt := getPoint(hWnd, lParam)
 	flags := getFlags(wParam)
-	return MbHandle.wkeFireMouseWheelEvent(v.handle, pt.X, pt.Y, int32(win.HIWORD(uint32(wParam))), flags)
+	return WebView.wkeFireMouseWheelEvent(v.handle, pt.X, pt.Y, int32(win.HIWORD(uint32(wParam))), flags)
 }
 
 func getPoint(hWnd win.HWND, lParam uintptr) win.POINT {
@@ -247,7 +247,7 @@ func (v *BlinkView) mouse(hWnd win.HWND, msg uint32, wParam, lParam uintptr) boo
 	y := win.HIWORD(uint32(lParam))
 
 	flags := getFlags(wParam)
-	return MbHandle.wkeFireMouseEvent(v.handle, int32(msg), int32(x), int32(y), flags)
+	return WebView.wkeFireMouseEvent(v.handle, int32(msg), int32(x), int32(y), flags)
 }
 
 func getFlags(wParam uintptr) int32 {
@@ -275,7 +275,7 @@ func getFlags(wParam uintptr) int32 {
 }
 func (v *BlinkView) resize(w, h int32, set bool) {
 	if v.handle > 0 {
-		MbHandle.wkeResize(v.handle, uint32(w), uint32(h))
+		WebView.wkeResize(v.handle, uint32(w), uint32(h))
 	}
 	if !set {
 		return

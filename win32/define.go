@@ -205,7 +205,7 @@ type wkeDownloadBind struct {
 	finishCallback   uintptr
 	saveNameCallback uintptr
 }
-type wkePopupDialogSaveNameCallback func(ptr, filePath uintptr) uintptr
+type WkePopupDialogSaveNameCallback func(ptr, filePath uintptr) uintptr
 type WkePaintBitUpdatedCallback func(wke WkeHandle, param, buf uintptr, rect *wkeRect, width, height int32) uintptr
 type WkePaintUpdatedCallback func(wke WkeHandle, param, hdc uintptr, left, top, width, height int32) uintptr
 type WkeNetResponseCallback func(wke WkeHandle, param, utf8Url uintptr, job WkeNetJob) uintptr

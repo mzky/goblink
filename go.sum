@@ -1,3 +1,5 @@
+github.com/elazarl/go-bindata-assetfs v1.0.1 h1:m0kkaHRKEu7tUIUFVwhGGGYClXvyl4RE03qmvRTNfbw=
+github.com/elazarl/go-bindata-assetfs v1.0.1/go.mod h1:v+YaWX3bdea5J/mo8dSETolEo7R71Vk1u8bnjau5yw4=
 github.com/mzky/win v0.0.0-20220726083956-8b8ae43846ae h1:RRXoSVyhNGFa78IWG/OshEvuvFJCjjTDkHo/6xbEOWw=
 github.com/mzky/win v0.0.0-20220726083956-8b8ae43846ae/go.mod h1:SqbSazLFBmohSY40daaJQnWs8nq99JU70a6FI3Yt0vc=
 golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
