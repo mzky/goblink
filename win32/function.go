@@ -1,7 +1,6 @@
 package win32
 
 import (
-	"fmt"
 	"github.com/mzky/goblink/blink"
 	"github.com/mzky/win"
 	"golang.org/x/sys/windows"
@@ -84,83 +83,83 @@ var (
 	TempPath = filepath.Join(os.TempDir(), "blink")
 )
 
-func (t *Blink) Init() *Blink {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), DllName+"*.dll")
+func (b *Blink) Init() *Blink {
+	tmpFile, err := ioutil.TempFile(TempPath, DllName+"*.dll")
 	if err != nil {
 		log.Fatal("Cannot create temporary file", err)
 	}
-	ioutil.WriteFile(tmpFile.Name(), blink.Node, 755)
 	dllPath := tmpFile.Name()
+	ioutil.WriteFile(dllPath, blink.Node, 755)
 	tmpFile.Close() // 必须放前面
 	lib := windows.NewLazyDLL(dllPath)
 
-	t._wkeSetViewProxy = lib.NewProc("mbSetViewProxy")
-	t._wkeSetTransparent = lib.NewProc("mbSetTransparent")
-	t._wkeOnDocumentReady2 = lib.NewProc("mbOnDocumentReady")
-	t._wkeNetGetRawResponseHead = lib.NewProc("mbNetGetRawResponseHeadInBlinkThread")
-	t._wkeNetSetMIMEType = lib.NewProc("mbNetSetMIMEType")
-	t._wkeNetGetMIMEType = lib.NewProc("mbNetGetMIMEType")
-	t._wkeOnLoadUrlFail = lib.NewProc("mbOnLoadUrlFail")
-	t._wkeOnLoadUrlEnd = lib.NewProc("mbOnLoadUrlEnd")
-	t._wkeNetContinueJob = lib.NewProc("mbNetContinueJob")
-	t._wkeNetHoldJobToAsynCommit = lib.NewProc("mbNetHoldJobToAsynCommit")
-	t._wkeNetHookRequest = lib.NewProc("mbNetHookRequest")
-	t._wkeNetChangeRequestUrl = lib.NewProc("mbNetChangeRequestUrl")
-	t._wkeNetSetHTTPHeaderField = lib.NewProc("mbNetSetHTTPHeaderField")
-	t._wkeGetString = lib.NewProc("mbGetString")
-	t._wkeOnConsole = lib.NewProc("mbOnConsole")
-	t._wkeIsMainFrame = lib.NewProc("mbIsMainFrame")
-	t._wkeOnDidCreateScriptContext = lib.NewProc("mbOnDidCreateScriptContext")
-	t._wkeKillFocus = lib.NewProc("mbKillFocus")
-	t._wkeNetCancelRequest = lib.NewProc("mbNetCancelRequest")
-	t._wkeNetSetData = lib.NewProc("mbNetSetData")
-	t._wkeNetGetRequestMethod = lib.NewProc("mbNetGetRequestMethod")
-	t._wkeFireKeyPressEvent = lib.NewProc("mbFireKeyPressEvent")
-	t._wkeFireKeyUpEvent = lib.NewProc("mbFireKeyUpEvent")
-	t._wkeFireKeyDownEvent = lib.NewProc("mbFireKeyDownEvent")
-	t._wkeFireMouseWheelEvent = lib.NewProc("mbFireMouseWheelEvent")
-	t._wkeFireContextMenuEvent = lib.NewProc("mbFireContextMenuEvent")
-	t._wkeFireWindowsMessage = lib.NewProc("mbFireWindowsMessage")
-	t._wkeCreateWebWindow = lib.NewProc("mbCreateWebWindow")
-	t._wkeShowWindow = lib.NewProc("mbShowWindow")
-	t._wkeFireMouseEvent = lib.NewProc("mbFireMouseEvent")
-	t._wkeOnLoadUrlBegin = lib.NewProc("mbOnLoadUrlBegin")
-	t._wkeNetOnResponse = lib.NewProc("mbNetOnResponse")
-	t._wkeLoadURL = lib.NewProc("mbLoadURL")
-	t._wkeGetHostHWND = lib.NewProc("mbGetHostHWND")
-	t._wkeResize = lib.NewProc("mbResize")
-	t._wkeOnPaintBitUpdated = lib.NewProc("mbOnPaintBitUpdated")
-	t._wkeOnPaintUpdated = lib.NewProc("mbOnPaintUpdated")
-	t._wkeSetHandle = lib.NewProc("mbSetHandle")
-	t._wkeCreateWebView = lib.NewProc("mbCreateWebView")
-	t._wkeInitialize = lib.NewProc("mbInit")
-	t._wkeUnInitialize = lib.NewProc("mbUninit")
-	t._wkeSetFocus = lib.NewProc("mbSetFocus")
-	t._wkeDestroyWebView = lib.NewProc("mbDestroyWebView")
-	t._jsGetWebView = lib.NewProc("jsGetWebView")
-	t._wkeOnDownload = lib.NewProc("mbOnDownloadInBlinkThread")
-	t._wkeOnAlertBox = lib.NewProc("mbOnAlertBox")
-	t._wkeOnCreateView = lib.NewProc("mbOnCreateView")
-	t._wkeSetContextMenuEnabled = lib.NewProc("mbSetContextMenuEnabled")
-	t._wkeSetNavigationToNewWindowEnable = lib.NewProc("mbSetNavigationToNewWindowEnable")
-	t._wkeSetUserAgent = lib.NewProc("mbSetUserAgent")
-	t._wkePopupDialogAndDownload = lib.NewProc("mbPopupDialogAndDownload")
-	t._wkeSetDebugConfig = lib.NewProc("mbSetDebugConfig")
-	t._wkeOnJsQuery = lib.NewProc("mbOnJsQuery")
-	t._wkeResponseQuery = lib.NewProc("mbResponseQuery")
-	t._wkeGetLockedViewDC = lib.NewProc("mbGetLockedViewDC")
-	t._wkeRunMessageLoop = lib.NewProc("mbRunMessageLoop")
-	t._wkeWebFrameGetMainFrame = lib.NewProc("mbWebFrameGetMainFrame")
-	t._wkeRunJs = lib.NewProc("mbRunJs")
-	t._wkeOnLoadingFinish = lib.NewProc("mbOnLoadingFinish")
-	t._wkeEnableHighDPISupport = lib.NewProc("mbEnableHighDPISupport")
+	b._wkeSetViewProxy = lib.NewProc("mbSetViewProxy")
+	b._wkeSetTransparent = lib.NewProc("mbSetTransparent")
+	b._wkeOnDocumentReady2 = lib.NewProc("mbOnDocumentReady")
+	b._wkeNetGetRawResponseHead = lib.NewProc("mbNetGetRawResponseHeadInBlinkThread")
+	b._wkeNetSetMIMEType = lib.NewProc("mbNetSetMIMEType")
+	b._wkeNetGetMIMEType = lib.NewProc("mbNetGetMIMEType")
+	b._wkeOnLoadUrlFail = lib.NewProc("mbOnLoadUrlFail")
+	b._wkeOnLoadUrlEnd = lib.NewProc("mbOnLoadUrlEnd")
+	b._wkeNetContinueJob = lib.NewProc("mbNetContinueJob")
+	b._wkeNetHoldJobToAsynCommit = lib.NewProc("mbNetHoldJobToAsynCommit")
+	b._wkeNetHookRequest = lib.NewProc("mbNetHookRequest")
+	b._wkeNetChangeRequestUrl = lib.NewProc("mbNetChangeRequestUrl")
+	b._wkeNetSetHTTPHeaderField = lib.NewProc("mbNetSetHTTPHeaderField")
+	b._wkeGetString = lib.NewProc("mbGetString")
+	b._wkeOnConsole = lib.NewProc("mbOnConsole")
+	b._wkeIsMainFrame = lib.NewProc("mbIsMainFrame")
+	b._wkeOnDidCreateScriptContext = lib.NewProc("mbOnDidCreateScriptContext")
+	b._wkeKillFocus = lib.NewProc("mbKillFocus")
+	b._wkeNetCancelRequest = lib.NewProc("mbNetCancelRequest")
+	b._wkeNetSetData = lib.NewProc("mbNetSetData")
+	b._wkeNetGetRequestMethod = lib.NewProc("mbNetGetRequestMethod")
+	b._wkeFireKeyPressEvent = lib.NewProc("mbFireKeyPressEvent")
+	b._wkeFireKeyUpEvent = lib.NewProc("mbFireKeyUpEvent")
+	b._wkeFireKeyDownEvent = lib.NewProc("mbFireKeyDownEvent")
+	b._wkeFireMouseWheelEvent = lib.NewProc("mbFireMouseWheelEvent")
+	b._wkeFireContextMenuEvent = lib.NewProc("mbFireContextMenuEvent")
+	b._wkeFireWindowsMessage = lib.NewProc("mbFireWindowsMessage")
+	b._wkeCreateWebWindow = lib.NewProc("mbCreateWebWindow")
+	b._wkeShowWindow = lib.NewProc("mbShowWindow")
+	b._wkeFireMouseEvent = lib.NewProc("mbFireMouseEvent")
+	b._wkeOnLoadUrlBegin = lib.NewProc("mbOnLoadUrlBegin")
+	b._wkeNetOnResponse = lib.NewProc("mbNetOnResponse")
+	b._wkeLoadURL = lib.NewProc("mbLoadURL")
+	b._wkeGetHostHWND = lib.NewProc("mbGetHostHWND")
+	b._wkeResize = lib.NewProc("mbResize")
+	b._wkeOnPaintBitUpdated = lib.NewProc("mbOnPaintBitUpdated")
+	b._wkeOnPaintUpdated = lib.NewProc("mbOnPaintUpdated")
+	b._wkeSetHandle = lib.NewProc("mbSetHandle")
+	b._wkeCreateWebView = lib.NewProc("mbCreateWebView")
+	b._wkeInitialize = lib.NewProc("mbInit")
+	b._wkeUnInitialize = lib.NewProc("mbUninit")
+	b._wkeSetFocus = lib.NewProc("mbSetFocus")
+	b._wkeDestroyWebView = lib.NewProc("mbDestroyWebView")
+	b._jsGetWebView = lib.NewProc("jsGetWebView")
+	b._wkeOnDownload = lib.NewProc("mbOnDownloadInBlinkThread")
+	b._wkeOnAlertBox = lib.NewProc("mbOnAlertBox")
+	b._wkeOnCreateView = lib.NewProc("mbOnCreateView")
+	b._wkeSetContextMenuEnabled = lib.NewProc("mbSetContextMenuEnabled")
+	b._wkeSetNavigationToNewWindowEnable = lib.NewProc("mbSetNavigationToNewWindowEnable")
+	b._wkeSetUserAgent = lib.NewProc("mbSetUserAgent")
+	b._wkePopupDialogAndDownload = lib.NewProc("mbPopupDialogAndDownload")
+	b._wkeSetDebugConfig = lib.NewProc("mbSetDebugConfig")
+	b._wkeOnJsQuery = lib.NewProc("mbOnJsQuery")
+	b._wkeResponseQuery = lib.NewProc("mbResponseQuery")
+	b._wkeGetLockedViewDC = lib.NewProc("mbGetLockedViewDC")
+	b._wkeRunMessageLoop = lib.NewProc("mbRunMessageLoop")
+	b._wkeWebFrameGetMainFrame = lib.NewProc("mbWebFrameGetMainFrame")
+	b._wkeRunJs = lib.NewProc("mbRunJs")
+	b._wkeOnLoadingFinish = lib.NewProc("mbOnLoadingFinish")
+	b._wkeEnableHighDPISupport = lib.NewProc("mbEnableHighDPISupport")
 	var set MbSettings
 	set.Mask = MB_ENABLE_NODEJS
-	r, _, err := t._wkeInitialize.Call(uintptr(unsafe.Pointer(&set)))
+	r, _, err := b._wkeInitialize.Call(uintptr(unsafe.Pointer(&set)))
 	if r != 0 {
-		fmt.Println(err.Error())
+		return b
 	}
-	return t
+	return b
 }
 
 func GetBound(h win.HWND) win.RECT {
@@ -177,31 +176,36 @@ func GetBound(h win.HWND) win.RECT {
 	return bn
 }
 
-func (t *Blink) wkeUnInit() {
-	t._wkeUnInitialize.Call()
-}
-func (t *Blink) WkeOnDownload(wke WkeHandle, callback WkeOnDownloadCallback, param uintptr) {
-	t._wkeOnDownload.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) WkeUnInit() {
+	b._wkeUnInitialize.Call()
 }
 
-func (t *Blink) WkeOnAlertBox(wke WkeHandle, callback WkeOnAlertBoxCallback, param uintptr) {
-	t._wkeOnAlertBox.Call(uintptr(wke), syscall.NewCallback(callback), param)
-}
-func (t *Blink) wkeOnCreateView(wke WkeHandle, callback WkeOnCreateViewCallback, param uintptr) {
-	t._wkeOnCreateView.Call(uintptr(wke), syscall.NewCallback(callback), param)
-}
-func (t *Blink) wkeSetContextMenuEnabled(wke WkeHandle, show bool) {
-	t._wkeSetContextMenuEnabled.Call(uintptr(wke), uintptr(toBool(show)))
-}
-func (t *Blink) WkeSetNavigationToNewWindowEnable(wke WkeHandle, b bool) {
-	t._wkeSetNavigationToNewWindowEnable.Call(uintptr(wke), uintptr(toBool(b)))
-}
-func (t *Blink) WkeSetUserAgent(wke WkeHandle, ua string) {
-	p := StrToCharPtr(ua)
-	t._wkeSetUserAgent.Call(uintptr(wke), p)
+func (b *Blink) WkeOnDownload(wke WkeHandle, callback WkeOnDownloadCallback, param uintptr) {
+	b._wkeOnDownload.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeSetViewProxy(wke WkeHandle, proxy ProxyInfo) {
+func (b *Blink) WkeOnAlertBox(wke WkeHandle, callback WkeOnAlertBoxCallback, param uintptr) {
+	b._wkeOnAlertBox.Call(uintptr(wke), syscall.NewCallback(callback), param)
+}
+
+func (b *Blink) wkeOnCreateView(wke WkeHandle, callback WkeOnCreateViewCallback, param uintptr) {
+	b._wkeOnCreateView.Call(uintptr(wke), syscall.NewCallback(callback), param)
+}
+
+func (b *Blink) wkeSetContextMenuEnabled(wke WkeHandle, show bool) {
+	b._wkeSetContextMenuEnabled.Call(uintptr(wke), uintptr(toBool(show)))
+}
+
+func (b *Blink) WkeSetNavigationToNewWindowEnable(wke WkeHandle, bl bool) {
+	b._wkeSetNavigationToNewWindowEnable.Call(uintptr(wke), uintptr(toBool(bl)))
+}
+
+func (b *Blink) WkeSetUserAgent(wke WkeHandle, userAgent string) {
+	p := StrToCharPtr(userAgent)
+	b._wkeSetUserAgent.Call(uintptr(wke), p)
+}
+
+func (b *Blink) wkeSetViewProxy(wke WkeHandle, proxy ProxyInfo) {
 	px := WkeProxy{
 		Type: int32(proxy.Type),
 		Port: uint16(proxy.Port),
@@ -219,27 +223,27 @@ func (t *Blink) wkeSetViewProxy(wke WkeHandle, proxy ProxyInfo) {
 			px.Password[i] = byte(c)
 		}
 	}
-	t._wkeSetViewProxy.Call(uintptr(wke), uintptr(unsafe.Pointer(&px)))
+	b._wkeSetViewProxy.Call(uintptr(wke), uintptr(unsafe.Pointer(&px)))
 }
 
-func (t *Blink) WkeSetTransparent(wke WkeHandle, enable bool) {
-	t._wkeSetTransparent.Call(uintptr(wke), uintptr(toBool(enable)))
+func (b *Blink) WkeSetTransparent(wke WkeHandle, enable bool) {
+	b._wkeSetTransparent.Call(uintptr(wke), uintptr(toBool(enable)))
 }
 
-func (t *Blink) WkeOnDocumentReady(wke WkeHandle, callback WkeDocumentReady2Callback, param uintptr) {
-	t._wkeOnDocumentReady2.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) WkeOnDocumentReady(wke WkeHandle, callback WkeDocumentReady2Callback, param uintptr) {
+	b._wkeOnDocumentReady2.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeNetGetRawResponseHead(job WkeNetJob) map[string]string {
-	r, _, _ := t._wkeNetGetRawResponseHead.Call(uintptr(job))
+func (b *Blink) wkeNetGetRawResponseHead(job WkeNetJob) map[string]string {
+	r, _, _ := b._wkeNetGetRawResponseHead.Call(uintptr(job))
 	var list []string
-	slist := *((*WkeSlist)(unsafe.Pointer(r)))
-	for slist.Str != 0 {
-		list = append(list, PtrToUtf8(slist.Str))
-		if slist.Next == 0 {
+	sList := *((*WkeSlist)(unsafe.Pointer(r)))
+	for sList.Str != 0 {
+		list = append(list, PtrToUtf8(sList.Str))
+		if sList.Next == 0 {
 			break
 		} else {
-			slist = *((*WkeSlist)(unsafe.Pointer(slist.Next)))
+			sList = *((*WkeSlist)(unsafe.Pointer(sList.Next)))
 		}
 	}
 	hMap := make(map[string]string)
@@ -249,108 +253,108 @@ func (t *Blink) wkeNetGetRawResponseHead(job WkeNetJob) map[string]string {
 	return hMap
 }
 
-func (t *Blink) wkeNetSetMIMEType(job WkeNetJob, mime string) {
+func (b *Blink) wkeNetSetMIMEType(job WkeNetJob, mime string) {
 	p := StrToCharPtr(mime)
-	t._wkeNetSetMIMEType.Call(uintptr(job), p)
+	b._wkeNetSetMIMEType.Call(uintptr(job), p)
 }
 
-func (t *Blink) wkeNetGetMIMEType(job WkeNetJob) string {
-	r, _, _ := t._wkeNetGetMIMEType.Call(uintptr(job))
+func (b *Blink) wkeNetGetMIMEType(job WkeNetJob) string {
+	r, _, _ := b._wkeNetGetMIMEType.Call(uintptr(job))
 	return PtrToUtf8(r)
 }
 
-func (t *Blink) wkeOnLoadUrlFail(wke WkeHandle, callback WkeLoadUrlFailCallback, param uintptr) {
-	t._wkeOnLoadUrlFail.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeOnLoadUrlFail(wke WkeHandle, callback WkeLoadUrlFailCallback, param uintptr) {
+	b._wkeOnLoadUrlFail.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeOnLoadUrlEnd(wke WkeHandle, callback WkeLoadUrlEndCallback, param uintptr) {
-	t._wkeOnLoadUrlEnd.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeOnLoadUrlEnd(wke WkeHandle, callback WkeLoadUrlEndCallback, param uintptr) {
+	b._wkeOnLoadUrlEnd.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeNetContinueJob(job WkeNetJob) {
-	t._wkeNetContinueJob.Call(uintptr(job))
+func (b *Blink) wkeNetContinueJob(job WkeNetJob) {
+	b._wkeNetContinueJob.Call(uintptr(job))
 }
 
-func (t *Blink) wkeNetHoldJobToAsynCommit(job WkeNetJob) {
-	t._wkeNetHoldJobToAsynCommit.Call(uintptr(job))
+func (b *Blink) wkeNetHoldJobToAsynCommit(job WkeNetJob) {
+	b._wkeNetHoldJobToAsynCommit.Call(uintptr(job))
 }
 
-func (t *Blink) wkeNetHookRequest(job WkeNetJob) {
-	t._wkeNetHookRequest.Call(uintptr(job))
+func (b *Blink) wkeNetHookRequest(job WkeNetJob) {
+	b._wkeNetHookRequest.Call(uintptr(job))
 }
 
-func (t *Blink) wkeNetChangeRequestUrl(job WkeNetJob, url string) {
+func (b *Blink) wkeNetChangeRequestUrl(job WkeNetJob, url string) {
 	p := StrToCharPtr(url)
-	t._wkeNetChangeRequestUrl.Call(uintptr(job), p)
+	b._wkeNetChangeRequestUrl.Call(uintptr(job), p)
 }
 
-func (t *Blink) wkeNetSetHTTPHeaderField(job WkeNetJob, name, value string) {
+func (b *Blink) wkeNetSetHTTPHeaderField(job WkeNetJob, name, value string) {
 	np := StrToCharPtr(name)
 	vp := StrToCharPtr(value)
-	t._wkeNetSetHTTPHeaderField.Call(uintptr(job), np, vp)
+	b._wkeNetSetHTTPHeaderField.Call(uintptr(job), np, vp)
 }
 
-func (t *Blink) wkeGetString(str WkeString) string {
-	r, _, _ := t._wkeGetString.Call(uintptr(str))
+func (b *Blink) wkeGetString(str WkeString) string {
+	r, _, _ := b._wkeGetString.Call(uintptr(str))
 	return PtrToUtf8(r)
 }
 
-func (t *Blink) wkeOnConsole(wke WkeHandle, callback WkeConsoleCallback, param uintptr) {
-	t._wkeOnConsole.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeOnConsole(wke WkeHandle, callback WkeConsoleCallback, param uintptr) {
+	b._wkeOnConsole.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeIsMainFrame(wke WkeHandle, frame WkeFrame) bool {
-	r, _, _ := t._wkeIsMainFrame.Call(uintptr(wke), uintptr(frame))
+func (b *Blink) wkeIsMainFrame(wke WkeHandle, frame WkeFrame) bool {
+	r, _, _ := b._wkeIsMainFrame.Call(uintptr(wke), uintptr(frame))
 	return r != 0
 }
 
-func (t *Blink) wkeOnDidCreateScriptContext(wke WkeHandle, callback WkeDidCreateScriptContextCallback, param uintptr) {
-	t._wkeOnDidCreateScriptContext.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeOnDidCreateScriptContext(wke WkeHandle, callback WkeDidCreateScriptContextCallback, param uintptr) {
+	b._wkeOnDidCreateScriptContext.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeKillFocus(wke WkeHandle) {
-	t._wkeKillFocus.Call(uintptr(wke))
+func (b *Blink) wkeKillFocus(wke WkeHandle) {
+	b._wkeKillFocus.Call(uintptr(wke))
 }
 
-func (t *Blink) jsGetWebView(es JsExecState) WkeHandle {
-	r, _, _ := t._jsGetWebView.Call(uintptr(es))
+func (b *Blink) jsGetWebView(es JsExecState) WkeHandle {
+	r, _, _ := b._jsGetWebView.Call(uintptr(es))
 	return WkeHandle(r)
 }
 
-func (t *Blink) WkeDestroyWebView(wke WkeHandle) {
-	t._wkeDestroyWebView.Call(uintptr(wke))
+func (b *Blink) WkeDestroyWebView(wke WkeHandle) {
+	b._wkeDestroyWebView.Call(uintptr(wke))
 }
 
-func (t *Blink) wkeNetCancelRequest(job WkeNetJob) {
-	t._wkeNetCancelRequest.Call(uintptr(job))
+func (b *Blink) wkeNetCancelRequest(job WkeNetJob) {
+	b._wkeNetCancelRequest.Call(uintptr(job))
 }
 
-func (t *Blink) wkeNetOnResponse(wke WkeHandle, callback WkeNetResponseCallback, param uintptr) {
-	t._wkeNetOnResponse.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeNetOnResponse(wke WkeHandle, callback WkeNetResponseCallback, param uintptr) {
+	b._wkeNetOnResponse.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeOnLoadUrlBegin(wke WkeHandle, callback WkeLoadUrlBeginCallback, param uintptr) {
-	t._wkeOnLoadUrlBegin.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeOnLoadUrlBegin(wke WkeHandle, callback WkeLoadUrlBeginCallback, param uintptr) {
+	b._wkeOnLoadUrlBegin.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
 
-func (t *Blink) wkeNetGetRequestMethod(job WkeNetJob) WkeRequestType {
-	r, _, _ := t._wkeNetGetRequestMethod.Call(uintptr(job))
+func (b *Blink) wkeNetGetRequestMethod(job WkeNetJob) WkeRequestType {
+	r, _, _ := b._wkeNetGetRequestMethod.Call(uintptr(job))
 	return WkeRequestType(r)
 }
 
-func (t *Blink) wkeNetSetData(job WkeNetJob, buf []byte) {
+func (b *Blink) wkeNetSetData(job WkeNetJob, buf []byte) {
 	if len(buf) == 0 {
 		buf = []byte{0}
 	}
-	t._wkeNetSetData.Call(uintptr(job), uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf)))
+	b._wkeNetSetData.Call(uintptr(job), uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf)))
 }
 
-func (t *Blink) wkeSetFocus(wke WkeHandle) {
-	t._wkeSetFocus.Call(uintptr(wke))
+func (b *Blink) wkeSetFocus(wke WkeHandle) {
+	b._wkeSetFocus.Call(uintptr(wke))
 }
 
-func (t *Blink) wkeFireKeyPressEvent(wke WkeHandle, code, flags uint32, isSysKey bool) bool {
-	ret, _, _ := t._wkeFireKeyPressEvent.Call(
+func (b *Blink) wkeFireKeyPressEvent(wke WkeHandle, code, flags uint32, isSysKey bool) bool {
+	ret, _, _ := b._wkeFireKeyPressEvent.Call(
 		uintptr(wke),
 		uintptr(code),
 		uintptr(flags),
@@ -358,8 +362,8 @@ func (t *Blink) wkeFireKeyPressEvent(wke WkeHandle, code, flags uint32, isSysKey
 	return byte(ret) != 0
 }
 
-func (t *Blink) wkeFireKeyDownEvent(wke WkeHandle, code, flags uint32, isSysKey bool) bool {
-	ret, _, _ := t._wkeFireKeyDownEvent.Call(
+func (b *Blink) wkeFireKeyDownEvent(wke WkeHandle, code, flags uint32, isSysKey bool) bool {
+	ret, _, _ := b._wkeFireKeyDownEvent.Call(
 		uintptr(wke),
 		uintptr(code),
 		uintptr(flags),
@@ -367,8 +371,8 @@ func (t *Blink) wkeFireKeyDownEvent(wke WkeHandle, code, flags uint32, isSysKey 
 	return byte(ret) != 0
 }
 
-func (t *Blink) wkeFireKeyUpEvent(wke WkeHandle, code, flags uint32, isSysKey bool) bool {
-	ret, _, _ := t._wkeFireKeyUpEvent.Call(
+func (b *Blink) wkeFireKeyUpEvent(wke WkeHandle, code, flags uint32, isSysKey bool) bool {
+	ret, _, _ := b._wkeFireKeyUpEvent.Call(
 		uintptr(wke),
 		uintptr(code),
 		uintptr(flags),
@@ -376,8 +380,8 @@ func (t *Blink) wkeFireKeyUpEvent(wke WkeHandle, code, flags uint32, isSysKey bo
 	return byte(ret) != 0
 }
 
-func (t *Blink) wkeFireMouseWheelEvent(wke WkeHandle, x, y, delta, flags int32) bool {
-	r, _, _ := t._wkeFireMouseWheelEvent.Call(
+func (b *Blink) wkeFireMouseWheelEvent(wke WkeHandle, x, y, delta, flags int32) bool {
+	r, _, _ := b._wkeFireMouseWheelEvent.Call(
 		uintptr(wke),
 		uintptr(x),
 		uintptr(y),
@@ -385,16 +389,16 @@ func (t *Blink) wkeFireMouseWheelEvent(wke WkeHandle, x, y, delta, flags int32) 
 		uintptr(flags))
 	return byte(r) != 0
 }
-func (t *Blink) wkeFireContextMenuEvent(wke WkeHandle, x, y, flags int32) bool {
-	r, _, _ := t._wkeFireContextMenuEvent.Call(
+func (b *Blink) wkeFireContextMenuEvent(wke WkeHandle, x, y, flags int32) bool {
+	r, _, _ := b._wkeFireContextMenuEvent.Call(
 		uintptr(wke),
 		uintptr(x),
 		uintptr(y),
 		uintptr(flags))
 	return byte(r) != 0
 }
-func (t *Blink) wkeFireWindowsMessage(wke WkeHandle, hWnd win.HWND, message, wParam, lParam int32) bool {
-	r, _, _ := t._wkeFireWindowsMessage.Call(
+func (b *Blink) wkeFireWindowsMessage(wke WkeHandle, hWnd win.HWND, message, wParam, lParam int32) bool {
+	r, _, _ := b._wkeFireWindowsMessage.Call(
 		uintptr(wke),
 		uintptr(hWnd),
 		uintptr(message),
@@ -404,8 +408,8 @@ func (t *Blink) wkeFireWindowsMessage(wke WkeHandle, hWnd win.HWND, message, wPa
 	return byte(r) != 0
 }
 
-func (t *Blink) wkeCreateWebWindow(wt WindowType, parent win.HWND, x, y, width, height int32) WkeHandle {
-	r, _, _ := t._wkeCreateWebWindow.Call(
+func (b *Blink) wkeCreateWebWindow(wt WindowType, parent win.HWND, x, y, width, height int32) WkeHandle {
+	r, _, _ := b._wkeCreateWebWindow.Call(
 		uintptr(wt),
 		uintptr(parent),
 		uintptr(x),
@@ -415,12 +419,12 @@ func (t *Blink) wkeCreateWebWindow(wt WindowType, parent win.HWND, x, y, width, 
 	return WkeHandle(r)
 }
 
-func (t *Blink) wkeShowWindow(wke WkeHandle, show bool) {
-	t._wkeShowWindow.Call(uintptr(wke), uintptr(toBool(show)))
+func (b *Blink) wkeShowWindow(wke WkeHandle, show bool) {
+	b._wkeShowWindow.Call(uintptr(wke), uintptr(toBool(show)))
 }
 
-func (t *Blink) wkeFireMouseEvent(wke WkeHandle, message, x, y, flags int32) bool {
-	r, _, _ := t._wkeFireMouseEvent.Call(
+func (b *Blink) wkeFireMouseEvent(wke WkeHandle, message, x, y, flags int32) bool {
+	r, _, _ := b._wkeFireMouseEvent.Call(
 		uintptr(wke),
 		uintptr(message),
 		uintptr(x),
@@ -429,66 +433,66 @@ func (t *Blink) wkeFireMouseEvent(wke WkeHandle, message, x, y, flags int32) boo
 	return byte(r) != 0
 }
 
-func (t *Blink) wkeResize(wke WkeHandle, w, h uint32) {
-	t._wkeResize.Call(uintptr(wke), uintptr(w), uintptr(h))
+func (b *Blink) wkeResize(wke WkeHandle, w, h uint32) {
+	b._wkeResize.Call(uintptr(wke), uintptr(w), uintptr(h))
 }
 
-func (t *Blink) wkeLoadURL(wke WkeHandle, url string) {
+func (b *Blink) wkeLoadURL(wke WkeHandle, url string) {
 	ptr := StrToCharPtr(url)
-	t._wkeLoadURL.Call(uintptr(wke), ptr)
+	b._wkeLoadURL.Call(uintptr(wke), ptr)
 }
 
 /*
 设置一些实验性选项。debugString可用参数有：
 */
-func (t *Blink) WkeSetDebugConfig(wke WkeHandle, debug DebugType, param string) {
+func (b *Blink) WkeSetDebugConfig(wke WkeHandle, debug DebugType, param string) {
 	dp := StrToCharPtr(string(debug))
 	pp := StrToCharPtr(param)
-	t._wkeSetDebugConfig.Call(uintptr(wke), dp, pp)
+	b._wkeSetDebugConfig.Call(uintptr(wke), dp, pp)
 }
 
-func (t *Blink) wkeOnPaintBitUpdated(wke WkeHandle, callback WkePaintBitUpdatedCallback, param uintptr) {
-	t._wkeOnPaintBitUpdated.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeOnPaintBitUpdated(wke WkeHandle, callback WkePaintBitUpdatedCallback, param uintptr) {
+	b._wkeOnPaintBitUpdated.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
-func (t *Blink) WkeOnPaintUpdated(wke WkeHandle, callback WkePaintUpdatedCallback, param uintptr) {
-	t._wkeOnPaintUpdated.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) WkeOnPaintUpdated(wke WkeHandle, callback WkePaintUpdatedCallback, param uintptr) {
+	b._wkeOnPaintUpdated.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
-func (t *Blink) wkeOnLoadingFinish(wke WkeHandle, callback WkeLoadingFinishCallback, param uintptr) {
-	t._wkeOnLoadingFinish.Call(uintptr(wke), syscall.NewCallback(callback), param)
+func (b *Blink) wkeOnLoadingFinish(wke WkeHandle, callback WkeLoadingFinishCallback, param uintptr) {
+	b._wkeOnLoadingFinish.Call(uintptr(wke), syscall.NewCallback(callback), param)
 }
-func (t *Blink) wkeEnableHighDPISupport() {
-	t._wkeEnableHighDPISupport.Call()
-}
-
-func (t *Blink) wkeRunJs(handle WkeHandle, frame WkeFrame, script uintptr, isInClosure bool, param, unUse uintptr) {
-	t._wkeRunJs.Call(uintptr(handle), uintptr(frame), script, uintptr(toBool(isInClosure)), 0, param, unUse)
+func (b *Blink) wkeEnableHighDPISupport() {
+	b._wkeEnableHighDPISupport.Call()
 }
 
-func (t *Blink) WkeSetHandle(wke WkeHandle, handle uintptr) {
-	t._wkeSetHandle.Call(uintptr(wke), handle)
+func (b *Blink) wkeRunJs(handle WkeHandle, frame WkeFrame, script uintptr, isInClosure bool, param, unUse uintptr) {
+	b._wkeRunJs.Call(uintptr(handle), uintptr(frame), script, uintptr(toBool(isInClosure)), 0, param, unUse)
 }
-func (t *Blink) wkeOnShowDevtoolsCallback(wke uintptr, param uintptr) uintptr {
+
+func (b *Blink) WkeSetHandle(wke WkeHandle, handle uintptr) {
+	b._wkeSetHandle.Call(uintptr(wke), handle)
+}
+func (b *Blink) wkeOnShowDevtoolsCallback(wke uintptr, param uintptr) uintptr {
 	return 0
 }
-func (t *Blink) WkeCreateWebView() WkeHandle {
-	r, _, _ := t._wkeCreateWebView.Call()
+func (b *Blink) WkeCreateWebView() WkeHandle {
+	r, _, _ := b._wkeCreateWebView.Call()
 	return WkeHandle(r)
 }
-func (t *Blink) wkeGetHostHWND() win.HWND {
-	r, _, _ := t._wkeGetHostHWND.Call()
+func (b *Blink) wkeGetHostHWND() win.HWND {
+	r, _, _ := b._wkeGetHostHWND.Call()
 	return win.HWND(r)
 }
 
-func (t *Blink) wkeGetLockedViewDC(handle WkeHandle) win.HDC {
-	r, _, _ := t._wkeGetLockedViewDC.Call(uintptr(handle))
+func (b *Blink) wkeGetLockedViewDC(handle WkeHandle) win.HDC {
+	r, _, _ := b._wkeGetLockedViewDC.Call(uintptr(handle))
 	return win.HDC(r)
 }
-func (t *Blink) wkeRunMessageLoop() {
-	t._wkeRunMessageLoop.Call()
+func (b *Blink) wkeRunMessageLoop() {
+	b._wkeRunMessageLoop.Call()
 }
 
-func (t *Blink) wkeWebFrameGetMainFrame(handle WkeHandle) WkeFrame {
-	r, _, _ := t._wkeWebFrameGetMainFrame.Call(uintptr(handle))
+func (b *Blink) wkeWebFrameGetMainFrame(handle WkeHandle) WkeFrame {
+	r, _, _ := b._wkeWebFrameGetMainFrame.Call(uintptr(handle))
 	return WkeFrame(r)
 }
 

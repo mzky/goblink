@@ -30,7 +30,6 @@ const (
 	defaultFixedFontSize   DebugType = "defaultFixedFontSize"   // 默认Fixed字号。
 	imageEnable            DebugType = "imageEnable"            // 是否打开无图模式，param为“0”表示开启无图模式。
 	jsEnable               DebugType = "jsEnable"               // 是否禁用js，param为“0”表示禁用。
-
 )
 
 type WindowType int
@@ -194,17 +193,20 @@ type downInfo struct {
 	recvSize uint32
 	allSize  uint32
 }
+
 type wkeNetJobDataBind struct {
 	param          uintptr
 	recvCallback   wkeNetJobDataRecvCallback
 	finishCallback wkeNetJobDataFinishCallback
 }
+
 type wkeDownloadBind struct {
 	param            uintptr
 	recvCallback     uintptr
 	finishCallback   uintptr
 	saveNameCallback uintptr
 }
+
 type WkePopupDialogSaveNameCallback func(ptr, filePath uintptr) uintptr
 type WkePaintBitUpdatedCallback func(wke WkeHandle, param, buf uintptr, rect *wkeRect, width, height int32) uintptr
 type WkePaintUpdatedCallback func(wke WkeHandle, param, hdc uintptr, left, top, width, height int32) uintptr

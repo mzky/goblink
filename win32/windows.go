@@ -38,25 +38,23 @@ type SaveCallback func(url, path string)
 type FinishCallback func(url string, success bool)
 
 func init() {
-	WebView = new(Blink).Init()
 	var err error
-	classNamePtr, err = syscall.UTF16PtrFromString(className)
-	if err != nil {
+	var blink Blink
+	WebView = blink.Init()
+
+	if classNamePtr, err = syscall.UTF16PtrFromString(className); err != nil {
 		fmt.Println(err)
 		return
 	}
-	windowNamePtr, err = syscall.UTF16PtrFromString(windowName)
-	if err != nil {
+	if windowNamePtr, err = syscall.UTF16PtrFromString(windowName); err != nil {
 		fmt.Println(err)
 		return
 	}
-	classViewNamePtr, err = syscall.UTF16PtrFromString(classViewName)
-	if err != nil {
+	if classViewNamePtr, err = syscall.UTF16PtrFromString(classViewName); err != nil {
 		fmt.Println(err)
 		return
 	}
-	windowViewNamePtr, err = syscall.UTF16PtrFromString(windowViewName)
-	if err != nil {
+	if windowViewNamePtr, err = syscall.UTF16PtrFromString(windowViewName); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -128,28 +126,23 @@ func StartBlinkMain(url, title, devtoolsPath string, max, mb, ib bool, width, he
 	defer runtime.UnlockOSThread()
 	main := FormProfile{Title: title, Index: url, DevtoolsPath: devtoolsPath, Max: max, Mb: mb, Ib: ib, Width: width, Height: height}
 	main.NewBlinkWindow()
-	// 3. 主消息循环
-	msg := (*win.MSG)(unsafe.Pointer(win.GlobalAlloc(0, unsafe.Sizeof(win.MSG{}))))
-	defer win.GlobalFree(win.HGLOBAL(unsafe.Pointer(msg)))
-	for win.GetMessage(msg, 0, 0, 0) > 0 {
-		// fmt.Println(msg.Message, msg.HWnd, msg.LParam, msg.WParam)
-		if msg.Message == win.WM_QUIT {
-			WebView.wkeUnInit()
-			break
-		}
-		win.TranslateMessage(msg)
-		win.DispatchMessage(msg)
-	}
 	return nil
 }
 
+func CloseWindows() uintptr {
+	return w.WindowMsgProc(w.hWnd, win.WM_CLOSE, 0, 0)
+}
+
+var w window
+
 func (fp FormProfile) NewBlinkWindow() {
-	w := window{profile: fp}
+	w = window{profile: fp}
 	w.init()
 	v := BlinkView{}
+	v.DevtoolsPath = fp.DevtoolsPath
 	var r win.RECT
 	win.GetClientRect(w.hWnd, &r)
-	v.init(fp.UserAgent, fp.DevtoolsPath)
+	v.Init(fp.UserAgent)
 	v.SetOnNewWindow(w.OnCreateView)
 	v.setDownloadCallback(w.WkeOnDownloadCallback)
 	w.child = newClassWindow(0, win.WS_CHILD|win.WS_VISIBLE|win.WS_CLIPSIBLINGS|win.WS_CLIPCHILDREN, w.hWnd, r.Width(), r.Height(), classViewNamePtr, windowViewNamePtr, v.OnWndProc)
@@ -201,7 +194,7 @@ type window struct {
 func (w *window) init() {
 	w.down = make(map[string]*downInfo)
 	w.bind = make(map[string]*wkeDownloadBind)
-	w.hWnd = newWindow(0, w.style(), 0, int32(w.profile.Width), int32(w.profile.Height), w.windowMsgProc)
+	w.hWnd = newWindow(0, w.style(), 0, int32(w.profile.Width), int32(w.profile.Height), w.WindowMsgProc)
 	if w.hWnd == 0 {
 		return
 	}
@@ -240,7 +233,7 @@ func (w *window) roundRect() { // 有效果，但是很丑，还有bug
 	win.SetWindowRgn(w.hWnd, rgn, true)
 }
 
-func (w *window) windowMsgProc(hWnd win.HWND, msg uint32, wParam uintptr, lParam uintptr) uintptr {
+func (w *window) WindowMsgProc(hWnd win.HWND, msg uint32, wParam uintptr, lParam uintptr) uintptr {
 	switch msg {
 	case win.WM_SIZE:
 		if w.child > 0 && w.view != nil {
@@ -253,7 +246,7 @@ func (w *window) windowMsgProc(hWnd win.HWND, msg uint32, wParam uintptr, lParam
 		if w.view == nil {
 			break
 		}
-		w.view.close()
+		w.view.Close()
 		if w.profile.Main {
 			win.PostQuitMessage(0)
 		}
@@ -274,6 +267,7 @@ func (w *window) WkeOnDownloadCallback(wke WkeHandle, param uintptr, length uint
 	w.bind[urlStr] = &bind
 	return w.view.wkePopupDialogAndDownload(param, length, url, mime, disposition, job, dataBind, &bind)
 }
+
 func (w *window) OnCreateView(wke WkeHandle, param uintptr, naviType wkeNavigationType, url, feature uintptr) uintptr {
 	a := PtrToUtf8(url)
 	if Debug() {
@@ -295,6 +289,12 @@ func (w *window) OnCreateView(wke WkeHandle, param uintptr, naviType wkeNavigati
 	return 0
 }
 
+var isDebug = false
+
 func Debug() bool {
-	return true
+	return isDebug
+}
+
+func SetDebugMode() {
+	isDebug = true
 }

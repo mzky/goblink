@@ -21,6 +21,7 @@ type BlinkView struct {
 	mBitmap       win.HBITMAP
 	url           string
 	inJs          string
+	DevtoolsPath  string
 }
 
 func (v *BlinkView) createBitmap() {
@@ -41,7 +42,7 @@ func (v *BlinkView) createBitmap() {
 	v.mBitmap = hBmp
 }
 
-func (v *BlinkView) init(userAgent, devtoolsPath string) {
+func (v *BlinkView) Init(userAgent string) {
 	if WebView != nil {
 		v.handle = WebView.WkeCreateWebView()
 		WebView.WkeSetTransparent(v.handle, false)
@@ -53,8 +54,8 @@ func (v *BlinkView) init(userAgent, devtoolsPath string) {
 		if len(userAgent) > 0 {
 			WebView.WkeSetUserAgent(v.handle, userAgent)
 		}
-		if len(devtoolsPath) > 0 {
-			WebView.WkeSetDebugConfig(v.handle, showDevTools, devtoolsPath)
+		if len(v.DevtoolsPath) > 0 {
+			WebView.WkeSetDebugConfig(v.handle, showDevTools, v.DevtoolsPath)
 		}
 	}
 	return
@@ -65,7 +66,7 @@ func (v *BlinkView) setHWnd(parent win.HWND) {
 	v.mDC = win.CreateCompatibleDC(0)
 	WebView.WkeSetHandle(v.handle, uintptr(v.mWnd))
 }
-func (v *BlinkView) close() {
+func (v *BlinkView) Close() {
 	if v.mDC != 0 {
 		win.DeleteDC(v.mDC)
 	}
@@ -80,10 +81,8 @@ func (v *BlinkView) setDownloadCallback(callback func(wke WkeHandle, param uintp
 	WebView.WkeOnDownload(v.handle, callback, 0)
 	return
 }
-func (v *BlinkView) wkePopupDialogAndDownload(param uintptr, contentLength uint32, url, mime,
-	disposition uintptr, job WkeNetJob, data uintptr, callback *wkeDownloadBind) wkeDownloadOpt {
-	r, _, _ := WebView._wkePopupDialogAndDownload.Call(uintptr(v.handle), param, uintptr(contentLength), url, mime,
-		disposition, uintptr(job), data, uintptr(unsafe.Pointer(callback)))
+func (v *BlinkView) wkePopupDialogAndDownload(param uintptr, contentLength uint32, url, mime, disposition uintptr, job WkeNetJob, data uintptr, callback *wkeDownloadBind) wkeDownloadOpt {
+	r, _, _ := WebView._wkePopupDialogAndDownload.Call(uintptr(v.handle), param, uintptr(contentLength), url, mime, disposition, uintptr(job), data, uintptr(unsafe.Pointer(callback)))
 	return wkeDownloadOpt(r)
 }
 func (v *BlinkView) wkeOnDocumentReady(wke WkeHandle, param uintptr, frame WkeFrame) uintptr {
