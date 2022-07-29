@@ -16,7 +16,7 @@ func main() {
 ```
 
 
-```go
+```bash
 gox -osarch="windows/amd64" -ldflags "-w -s -H=windowsgui"
 gox -osarch="windows/386" -ldflags "-w -s -H=windowsgui" -tags="debug"
 go build -ldflags "-w -s -H=windowsgui" -tags="debug"
