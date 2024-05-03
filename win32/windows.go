@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/mzky/win"
+	"golang.org/x/sys/windows"
 	"io/ioutil"
 	"log"
 	"os"
@@ -297,4 +298,37 @@ func Debug() bool {
 
 func SetDebugMode() {
 	isDebug = true
+}
+
+func _TEXT(str string) *uint16 {
+	ptr, _ := syscall.UTF16PtrFromString(str)
+	return ptr
+}
+
+func MessageBox(caption, text string) {
+	win.MessageBox(w.view.mWnd, _TEXT(text), _TEXT(caption), win.MB_ICONWARNING)
+}
+
+func StringToUint16(name string) *uint16 {
+	ptr, _ := syscall.UTF16PtrFromString(name)
+	return ptr
+}
+
+// LockMutex windows下单实例锁
+func LockMutex(name string) error {
+	_, err := windows.CreateMutex(nil, true, StringToUint16(name))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// FindWindowToTop 查找窗口并显示到最上层，参数为窗口标题，可能需要禁用自动窗口标题，DisableAutoTitle()后SetWindowTitle(windowTitle)
+func FindWindowToTop(windowTitle string) {
+	w.hWnd = win.FindWindow(StringToUint16("wkeWebWindow"), StringToUint16(windowTitle))
+	//w.view.MoveToCenter()
+	//w.view.RestoreWindow()
+	//w.view.MostTop(true)
+	//w.view.MostTop(false) // 需要加这句，否则一直置顶，无法切换到其它程序
+	//w.view.ToTop()
 }
