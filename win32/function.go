@@ -4,7 +4,6 @@ import (
 	"github.com/mzky/goblink/blink"
 	"github.com/mzky/win"
 	"golang.org/x/sys/windows"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -84,13 +83,14 @@ var (
 )
 
 func (b *Blink) Init() *Blink {
-	tmpFile, err := ioutil.TempFile(TempPath, DllName+"*.dll")
+	_ = os.MkdirAll(TempPath, 755)
+	tmpFile, err := os.CreateTemp(TempPath, DllName+"*.dll")
 	if err != nil {
 		log.Fatal("Cannot create temporary file", err)
 	}
 	dllPath := tmpFile.Name()
-	ioutil.WriteFile(dllPath, blink.Node, 755)
-	tmpFile.Close() // 必须放前面
+	_ = os.WriteFile(dllPath, blink.Node, 755)
+	_ = tmpFile.Close() // 必须放前面
 	lib := windows.NewLazyDLL(dllPath)
 
 	b._wkeSetViewProxy = lib.NewProc("mbSetViewProxy")
